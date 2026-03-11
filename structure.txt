@@ -1,0 +1,72 @@
+electrostore/
+└── backend/
+    ├── package.json
+    ├── .env.example
+    ├── server.js
+    ├── config/
+    │   ├── database.js
+    │   └── env.js
+    ├── models/
+    │   ├── User.js
+    │   ├── Product.js
+    │   ├── Promo.js
+    │   ├── Order.js
+    │   ├── Transaction.js
+    │   ├── Address.js
+    │   ├── Wishlist.js
+    │   ├── Notification.js
+    │   ├── Cart.js
+    │   └── SystemSettings.js
+    ├── controllers/
+    │   ├── authController.js
+    │   ├── productController.js
+    │   ├── orderController.js
+    │   ├── promoController.js
+    │   ├── userController.js
+    │   ├── customerController.js
+    │   ├── transactionController.js
+    │   ├── settingsController.js
+    │   ├── notificationController.js
+    │   ├── mpesaController.js
+    │   ├── cartController.js
+    │   ├── checkoutController.js
+    │   ├── wishlistController.js
+    │   └── reportController.js
+    ├── routes/
+    │   ├── authRoutes.js
+    │   ├── mpesaRoutes.js
+    │   ├── admin/
+    │   │   ├── index.js
+    │   │   ├── userRoutes.js
+    │   │   ├── productRoutes.js
+    │   │   ├── promoRoutes.js
+    │   │   ├── orderRoutes.js
+    │   │   ├── transactionRoutes.js
+    │   │   ├── customerRoutes.js
+    │   │   ├── settingsRoutes.js
+    │   │   └── reportRoutes.js
+    │   └── customer/
+    │       ├── index.js
+    │       ├── productRoutes.js
+    │       ├── promoRoutes.js
+    │       ├── cartRoutes.js
+    │       ├── checkoutRoutes.js
+    │       ├── orderRoutes.js
+    │       ├── addressRoutes.js
+    │       ├── wishlistRoutes.js
+    │       └── notificationRoutes.js
+    ├── middleware/
+    │   ├── auth.js
+    │   ├── roleCheck.js
+    │   ├── errorHandler.js
+    │   ├── validate.js
+    │   └── upload.js
+    ├── utils/
+    │   ├── mpesa.js
+    │   ├── socket.js
+    │   └── logger.js
+    └── scripts/
+        ├── seed.js
+        ├── createAdmin.js
+        ├── checkAdmins.js
+        └── dropDB.js

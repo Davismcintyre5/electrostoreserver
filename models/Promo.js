@@ -10,7 +10,8 @@ const promoSchema = new mongoose.Schema({
   validUntil: Date,
   usageLimit: Number,
   usedCount: { type: Number, default: 0 },
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('Promo', promoSchema);

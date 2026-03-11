@@ -2,19 +2,19 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../../middleware/auth');
 
-// Public routes (no auth)
+// Public routes
 router.use('/products', require('./productRoutes'));
-router.use('/promos', require('./promoRoutes'));
+router.use('/promos', require('./promoRoutes')); // <-- must be present
 
 // Protected routes (require customer auth)
 router.use(auth);
-// Optionally check role = customer
 router.use((req, res, next) => {
   if (req.user.role !== 'customer') {
     return res.status(403).json({ message: 'Customer access only' });
   }
   next();
 });
+
 router.use('/cart', require('./cartRoutes'));
 router.use('/checkout', require('./checkoutRoutes'));
 router.use('/orders', require('./orderRoutes'));

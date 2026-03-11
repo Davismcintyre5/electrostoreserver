@@ -16,23 +16,26 @@ connectDB();
 
 // Allowed origins for CORS
 const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:3000',
-  process.env.ADMIN_URL || 'http://localhost:3001',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://electrostore.pxxl.click',
+  'https://electrostore-admin.pxxl.click',
 ];
 
-// CORS middleware for Express
+if (process.env.CLIENT_URL) allowedOrigins.push(process.env.CLIENT_URL);
+if (process.env.ADMIN_URL) allowedOrigins.push(process.env.ADMIN_URL);
+
+const uniqueOrigins = [...new Set(allowedOrigins)];
+
 app.use(cors({
-  origin: allowedOrigins,
+  origin: uniqueOrigins,
   credentials: true,
 }));
 
-// Body parser
 app.use(express.json());
-
-// Static files for uploaded images
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
-// ==================== BASIC INFO ENDPOINTS ====================
+// Basic info endpoints
 app.get('/', (req, res) => {
   res.json({ message: 'ElectroStore Server Running' });
 });
@@ -57,20 +60,19 @@ app.get('/health', (req, res) => {
   });
 });
 
-// ==================== API ROUTES ====================
+// API Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/mpesa', require('./routes/mpesaRoutes'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/customer', require('./routes/customer'));
 
-// Error handling middleware (must be last)
+// Error handling
 app.use(errorHandler);
 
-// Setup Socket.IO
+// Socket.IO
 setupSocket(server);
 
-// Start server
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Allowed CORS origins: ${allowedOrigins.join(', ')}`);
+  console.log(`Allowed CORS origins: ${uniqueOrigins.join(', ')}`);
 });

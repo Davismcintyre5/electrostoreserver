@@ -5,15 +5,22 @@ const { JWT_SECRET } = require('../config/env');
 let io;
 
 module.exports = (server) => {
-  // Allowed origins from environment variables
+  // Allowed origins – same as in server.js
   const allowedOrigins = [
-    process.env.CLIENT_URL || 'http://localhost:3000',
-    process.env.ADMIN_URL || 'http://localhost:3001',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://electrostore.pxxl.click',
+    'https://electrostore-admin.pxxl.click',
   ];
+
+  if (process.env.CLIENT_URL) allowedOrigins.push(process.env.CLIENT_URL);
+  if (process.env.ADMIN_URL) allowedOrigins.push(process.env.ADMIN_URL);
+
+  const uniqueOrigins = [...new Set(allowedOrigins)];
 
   io = socketIo(server, {
     cors: {
-      origin: allowedOrigins,
+      origin: uniqueOrigins,
       credentials: true,
       methods: ['GET', 'POST']
     }

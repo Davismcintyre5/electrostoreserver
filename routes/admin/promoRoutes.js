@@ -1,5 +1,10 @@
 const express = require('express');
-const { getAllPromos, createPromo, updatePromo, deletePromo } = require('../../controllers/promoController');
+const {
+  getAllPromos,
+  createPromo,
+  updatePromo,
+  deletePromo
+} = require('../../controllers/promoController');
 const router = express.Router();
 
 router.get('/', getAllPromos);

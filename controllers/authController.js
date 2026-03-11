@@ -54,6 +54,17 @@ exports.login = async (req, res, next) => {
   }
 };
 
+// Get current user (authenticated)
+exports.getMe = async (req, res, next) => {
+  try {
+    // req.user is set by auth middleware
+    const user = await User.findById(req.user.id).select('-password');
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+};
+
 // Change password (authenticated)
 exports.changePassword = async (req, res, next) => {
   try {

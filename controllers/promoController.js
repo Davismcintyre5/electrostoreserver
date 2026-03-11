@@ -4,7 +4,7 @@ const Promo = require('../models/Promo');
 exports.getAllPromos = async (req, res, next) => {
   try {
     const promos = await Promo.find().sort('-createdAt');
-    res.json(promos);
+    res.json({ promos, pages: 1, total: promos.length });
   } catch (err) {
     next(err);
   }
@@ -21,7 +21,7 @@ exports.createPromo = async (req, res, next) => {
 
 exports.updatePromo = async (req, res, next) => {
   try {
-    const promo = await Promo.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const promo = await Promo.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!promo) return res.status(404).json({ message: 'Promo not found' });
     res.json(promo);
   } catch (err) {
@@ -59,7 +59,7 @@ exports.validatePromo = async (req, res, next) => {
     const { code, amount } = req.body;
     const promo = await Promo.findOne({ code, isActive: true });
     if (!promo) return res.status(400).json({ message: 'Invalid promo code' });
-    
+
     const now = new Date();
     if (promo.validFrom > now || promo.validUntil < now) {
       return res.status(400).json({ message: 'Promo expired' });
@@ -70,7 +70,7 @@ exports.validatePromo = async (req, res, next) => {
     if (promo.usageLimit && promo.usedCount >= promo.usageLimit) {
       return res.status(400).json({ message: 'Promo usage limit reached' });
     }
-    
+
     let discount = 0;
     if (promo.discountType === 'percentage') {
       discount = (promo.discountValue / 100) * amount;

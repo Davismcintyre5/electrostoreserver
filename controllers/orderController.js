@@ -1,12 +1,12 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Address = require('../models/Address');
+const Transaction = require('../models/Transaction');
+const AccountEntry = require('../models/AccountEntry');
 const { getIO } = require('../utils/socket');
 
 // ==================== CUSTOMER METHODS ====================
 
-// @desc    Create order from cart (checkout)
-// @route   POST /api/customer/checkout
 exports.createOrder = async (req, res, next) => {
   try {
     const { addressId, paymentMethod } = req.body;
@@ -18,7 +18,6 @@ exports.createOrder = async (req, res, next) => {
     const address = await Address.findOne({ _id: addressId, user: req.user.id });
     if (!address) return res.status(400).json({ message: 'Invalid address' });
 
-    // Calculate total
     let total = 0;
     const items = cart.items.map(item => {
       const price = item.product.price;
@@ -35,11 +34,9 @@ exports.createOrder = async (req, res, next) => {
       orderStatus: 'pending'
     });
 
-    // Clear cart
     cart.items = [];
     await cart.save();
 
-    // Notify admins
     const io = getIO();
     io.to('admins').emit('newOrder', { orderId: order._id });
 
@@ -49,8 +46,6 @@ exports.createOrder = async (req, res, next) => {
   }
 };
 
-// @desc    Get my orders (customer)
-// @route   GET /api/customer/orders
 exports.getMyOrders = async (req, res, next) => {
   try {
     const orders = await Order.find({ user: req.user.id })
@@ -62,8 +57,6 @@ exports.getMyOrders = async (req, res, next) => {
   }
 };
 
-// @desc    Get single order (if belongs to customer)
-// @route   GET /api/customer/orders/:id
 exports.getOrderById = async (req, res, next) => {
   try {
     const order = await Order.findOne({ _id: req.params.id, user: req.user.id })
@@ -78,16 +71,16 @@ exports.getOrderById = async (req, res, next) => {
 
 // ==================== ADMIN METHODS ====================
 
-// @desc    Get all orders with search and filters
-// @route   GET /api/admin/orders
 exports.getAllOrders = async (req, res, next) => {
   try {
     const { search, status, page = 1, limit = 20 } = req.query;
     const filter = {};
     if (status) filter.orderStatus = status;
     if (search) {
-      // Search by order ID or user email/name – we'll just use order ID for simplicity
-      filter._id = search;
+      filter.$or = [
+        { _id: search },
+        { 'user.name': { $regex: search, $options: 'i' } }
+      ];
     }
     const orders = await Order.find(filter)
       .populate('user', 'name email')
@@ -102,19 +95,55 @@ exports.getAllOrders = async (req, res, next) => {
   }
 };
 
-// @desc    Update order status (admin)
-// @route   PATCH /api/admin/orders/:id/status
 exports.updateOrderStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
     const order = await Order.findByIdAndUpdate(req.params.id, { orderStatus: status }, { new: true });
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
-    // Notify customer via socket
     const io = getIO();
     io.to(`user:${order.user}`).emit('orderStatusUpdated', { orderId: order._id, status });
 
     res.json(order);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.confirmPayment = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    order.orderStatus = 'confirmed';
+    order.paymentStatus = 'paid';
+    await order.save();
+
+    const transaction = await Transaction.create({
+      order: order._id,
+      user: order.user,
+      amount: order.totalAmount,
+      phoneNumber: req.body.phoneNumber || 'N/A',
+      status: 'completed',
+      mpesaReceiptNumber: req.body.receiptNumber || `MANUAL-${Date.now()}`,
+      mpesaResponse: { method: 'manual_confirmation', notes: req.body.notes }
+    });
+
+    await AccountEntry.create({
+      type: 'income',
+      amount: order.totalAmount,
+      description: `Payment for order ${order._id}`,
+      reference: order._id,
+      createdBy: req.user.id
+    });
+
+    const io = getIO();
+    io.to(`user:${order.user}`).emit('orderStatusUpdated', {
+      orderId: order._id,
+      status: 'confirmed'
+    });
+
+    res.json({ order, transaction });
   } catch (err) {
     next(err);
   }

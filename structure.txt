@@ -1,72 +1,168 @@
 electrostore/
-└── backend/
-    ├── package.json
+├── backend/                          # Node.js + Express API
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── productController.js
+│   │   ├── orderController.js
+│   │   ├── promoController.js
+│   │   ├── userController.js
+│   │   ├── customerController.js
+│   │   ├── transactionController.js
+│   │   ├── settingsController.js
+│   │   ├── notificationController.js
+│   │   ├── mpesaController.js
+│   │   ├── cartController.js
+│   │   ├── checkoutController.js
+│   │   └── wishlistController.js
+│   ├── models/
+│   │   ├── User.js
+│   │   ├── Product.js
+│   │   ├── Promo.js
+│   │   ├── Order.js
+│   │   ├── Transaction.js
+│   │   ├── Address.js
+│   │   ├── Wishlist.js
+│   │   ├── Notification.js
+│   │   ├── Cart.js
+│   │   └── SystemSettings.js
+│   ├── routes/
+│   │   ├── authRoutes.js
+│   │   ├── admin/
+│   │   │   ├── index.js
+│   │   │   ├── userRoutes.js
+│   │   │   ├── productRoutes.js
+│   │   │   ├── promoRoutes.js
+│   │   │   ├── orderRoutes.js
+│   │   │   ├── transactionRoutes.js
+│   │   │   ├── customerRoutes.js
+│   │   │   ├── settingsRoutes.js
+│   │   │   └── reportRoutes.js          # new for reports
+│   │   ├── customer/
+│   │   │   ├── index.js
+│   │   │   ├── productRoutes.js
+│   │   │   ├── promoRoutes.js
+│   │   │   ├── cartRoutes.js
+│   │   │   ├── checkoutRoutes.js
+│   │   │   ├── orderRoutes.js
+│   │   │   ├── addressRoutes.js
+│   │   │   ├── wishlistRoutes.js
+│   │   │   └── notificationRoutes.js
+│   │   └── mpesaRoutes.js
+│   ├── middleware/
+│   │   ├── auth.js
+│   │   ├── roleCheck.js
+│   │   ├── errorHandler.js
+│   │   ├── validate.js
+│   │   └── upload.js
+│   ├── utils/
+│   │   ├── mpesa.js
+│   │   ├── socket.js
+│   │   └── logger.js
+│   ├── scripts/                         # Standalone scripts (run with node)
+│   │   ├── seed.js                       # populate database with sample data
+│   │   ├── createAdmin.js                 # prompts for details, creates admin user
+│   │   ├── checkAdmins.js                  # lists all admin users
+│   │   └── dropDB.js                       # drops the database (use with caution)
+│   ├── config/
+│   │   ├── database.js
+│   │   └── env.js                          # loads and validates environment variables
+│   ├── server.js                           # main entry point (Express + HTTP + Socket.IO)
+│   ├── package.json
+│   ├── .env.example
+│   └── README.md
+│
+├── admin/                               # React admin dashboard (Vite)
+│   ├── public/
+│   │   └── index.html
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   │   ├── common/
+│   │   │   │   ├── Header.jsx
+│   │   │   │   ├── Sidebar.jsx
+│   │   │   │   └── ProtectedRoute.jsx
+│   │   │   ├── products/
+│   │   │   ├── orders/
+│   │   │   ├── customers/
+│   │   │   └── reports/                    # new
+│   │   ├── pages/
+│   │   │   ├── DashboardPage.jsx
+│   │   │   ├── ProductsPage.jsx
+│   │   │   ├── PromosPage.jsx
+│   │   │   ├── OrdersPage.jsx
+│   │   │   ├── TransactionsPage.jsx
+│   │   │   ├── CustomersPage.jsx
+│   │   │   ├── UsersPage.jsx
+│   │   │   ├── SettingsPage.jsx
+│   │   │   ├── NotificationsPage.jsx
+│   │   │   ├── ReportsPage.jsx              # new
+│   │   │   └── LoginPage.jsx
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   └── auth.js
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
+│   │   ├── hooks/
+│   │   ├── utils/
+│   │   ├── App.jsx
+│   │   ├── App.css
+│   │   ├── main.jsx
+│   │   └── index.css
+│   ├── .env
+│   ├── .env.example
+│   ├── vite.config.js
+│   ├── package.json
+│   └── README.md
+│
+└── customer/                             # React customer frontend (Vite)
+    ├── public/
+    │   └── index.html
+    ├── src/
+    │   ├── assets/
+    │   ├── components/
+    │   │   ├── common/
+    │   │   │   ├── Header.jsx
+    │   │   │   ├── Footer.jsx
+    │   │   │   └── ProtectedRoute.jsx
+    │   │   ├── products/
+    │   │   ├── cart/
+    │   │   ├── checkout/
+    │   │   ├── account/
+    │   │   ├── addresses/
+    │   │   └── orders/
+    │   ├── pages/
+    │   │   ├── HomePage.jsx
+    │   │   ├── ProductsPage.jsx
+    │   │   ├── ProductDetailsPage.jsx
+    │   │   ├── PromosPage.jsx
+    │   │   ├── CartPage.jsx
+    │   │   ├── CheckoutPage.jsx
+    │   │   ├── LoginPage.jsx
+    │   │   ├── RegisterPage.jsx
+    │   │   ├── AccountPage.jsx
+    │   │   ├── AddressesPage.jsx
+    │   │   ├── WishlistPage.jsx
+    │   │   ├── OrdersPage.jsx
+    │   │   ├── OrderDetailsPage.jsx
+    │   │   └── ContactPage.jsx
+    │   ├── services/
+    │   │   ├── api.js
+    │   │   ├── auth.js
+    │   │   ├── products.js
+    │   │   ├── cart.js
+    │   │   ├── orders.js
+    │   │   └── addresses.js
+    │   ├── context/
+    │   │   ├── AuthContext.jsx
+    │   │   └── CartContext.jsx
+    │   ├── hooks/
+    │   ├── utils/
+    │   ├── App.jsx
+    │   ├── App.css
+    │   ├── main.jsx
+    │   └── index.css
+    ├── .env
     ├── .env.example
-    ├── server.js
-    ├── config/
-    │   ├── database.js
-    │   └── env.js
-    ├── models/
-    │   ├── User.js
-    │   ├── Product.js
-    │   ├── Promo.js
-    │   ├── Order.js
-    │   ├── Transaction.js
-    │   ├── Address.js
-    │   ├── Wishlist.js
-    │   ├── Notification.js
-    │   ├── Cart.js
-    │   └── SystemSettings.js
-    ├── controllers/
-    │   ├── authController.js
-    │   ├── productController.js
-    │   ├── orderController.js
-    │   ├── promoController.js
-    │   ├── userController.js
-    │   ├── customerController.js
-    │   ├── transactionController.js
-    │   ├── settingsController.js
-    │   ├── notificationController.js
-    │   ├── mpesaController.js
-    │   ├── cartController.js
-    │   ├── checkoutController.js
-    │   ├── wishlistController.js
-    │   └── reportController.js
-    ├── routes/
-    │   ├── authRoutes.js
-    │   ├── mpesaRoutes.js
-    │   ├── admin/
-    │   │   ├── index.js
-    │   │   ├── userRoutes.js
-    │   │   ├── productRoutes.js
-    │   │   ├── promoRoutes.js
-    │   │   ├── orderRoutes.js
-    │   │   ├── transactionRoutes.js
-    │   │   ├── customerRoutes.js
-    │   │   ├── settingsRoutes.js
-    │   │   └── reportRoutes.js
-    │   └── customer/
-    │       ├── index.js
-    │       ├── productRoutes.js
-    │       ├── promoRoutes.js
-    │       ├── cartRoutes.js
-    │       ├── checkoutRoutes.js
-    │       ├── orderRoutes.js
-    │       ├── addressRoutes.js
-    │       ├── wishlistRoutes.js
-    │       └── notificationRoutes.js
-    ├── middleware/
-    │   ├── auth.js
-    │   ├── roleCheck.js
-    │   ├── errorHandler.js
-    │   ├── validate.js
-    │   └── upload.js
-    ├── utils/
-    │   ├── mpesa.js
-    │   ├── socket.js
-    │   └── logger.js
-    └── scripts/
-        ├── seed.js
-        ├── createAdmin.js
-        ├── checkAdmins.js
-        └── dropDB.js
+    ├── vite.config.js
+    ├── package.json
+    └── README.md

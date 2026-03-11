@@ -33,15 +33,23 @@ exports.register = async (req, res, next) => {
   }
 };
 
-// Login (all users)
+// Login (all users) – with optional role check for admin
 exports.login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, as } = req.body; // 'as' can be 'admin' or undefined
     const user = await User.findOne({ email }).select('+password');
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
     if (!user.isActive) return res.status(401).json({ message: 'Account disabled' });
+
+    // If login is for admin panel, check role
+    if (as === 'admin') {
+      const allowedRoles = ['admin', 'manager', 'cashier'];
+      if (!allowedRoles.includes(user.role)) {
+        return res.status(403).json({ message: 'You are not authorized to access the admin panel' });
+      }
+    }
 
     const token = generateToken(user);
     res.json({
@@ -57,7 +65,6 @@ exports.login = async (req, res, next) => {
 // Get current user (authenticated)
 exports.getMe = async (req, res, next) => {
   try {
-    // req.user is set by auth middleware
     const user = await User.findById(req.user.id).select('-password');
     res.json(user);
   } catch (err) {
